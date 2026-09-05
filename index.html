@@ -231,6 +231,27 @@ button:hover {
     </div>
 
 
+    <!-- แสดงขั้นตอนการแปลง -->
+
+    <div class="card">
+
+        <h2>📝 แสดงขั้นตอนการแปลง</h2>
+
+        <p style="color:#94a3b8;">
+            ใช้ตัวเลขและฐานจากช่องด้านบน เพื่อแสดงวิธีคิดทีละขั้นตอน
+        </p>
+
+        <button onclick="showSteps()">
+            📝 แสดงขั้นตอน
+        </button>
+
+        <div class="result" id="stepsResult">
+            กรอกตัวเลขแล้วกดปุ่มนี้เพื่อดูวิธีคิด
+        </div>
+
+    </div>
+
+
     <!-- แสดงทุกฐาน -->
 
     <div class="card">
@@ -419,6 +440,108 @@ function convertNumber() {
 
     addHistory(
         `${input.trim()} (ฐาน ${fromBase}) → ${result} (ฐาน ${toBase})`
+    );
+}
+
+
+/* =========================
+   แสดงขั้นตอนการแปลง
+========================= */
+
+function showSteps() {
+
+    const input = document.getElementById("numberInput").value;
+
+    const fromBase = parseInt(
+        document.getElementById("fromBase").value
+    );
+
+    const toBase = parseInt(
+        document.getElementById("toBase").value
+    );
+
+    const normalized = normalize(input, fromBase);
+
+    if (!normalized) {
+        alert("กรุณาป้อนตัวเลข");
+        return;
+    }
+
+    if (!isValidNumber(normalized, fromBase)) {
+        document.getElementById("stepsResult").innerHTML =
+            `❌ ไม่ใช่ตัวเลขฐาน ${fromBase}`;
+        return;
+    }
+
+    if (fromBase === toBase) {
+        document.getElementById("stepsResult").innerHTML =
+            `เลข <span>${input.trim()}</span> เท่าเดิม ไม่ต้องแปลง เพราะเป็นฐานเดียวกัน`;
+        return;
+    }
+
+    const steps = [];
+    let decimal;
+
+    /* ขั้นที่ 1: เลขฐานเดิม → ฐาน 10 */
+    if (fromBase !== 10) {
+
+        decimal = toBigInt(normalized, fromBase);
+
+        const digits = normalized.split("");
+        const len = digits.length;
+
+        const terms = digits.map((d, i) =>
+            `${d} × ${fromBase}<sup>${len - 1 - i}</sup>`
+        );
+
+        const values = digits.map((d, i) => {
+            const pos = len - 1 - i;
+            const digitVal = BigInt(parseInt(d, fromBase));
+            return (digitVal * fromBase ** BigInt(pos)).toString(10);
+        });
+
+        steps.push(`<strong>ขั้นที่ 1:</strong> แปลง ${normalized}<sub>${fromBase}</sub> เป็นฐาน 10`);
+        steps.push(terms.join("  +  "));
+        steps.push(values.join("  +  "));
+        steps.push(`= <strong>${decimal.toString(10)}</strong><sub>10</sub>`);
+
+    } else {
+
+        decimal = toBigInt(normalized, 10);
+    }
+
+    /* ขั้นที่ 2: ฐาน 10 → ฐานปลายทาง (หารย้อนขึ้น) */
+    steps.push(`<strong>ขั้นที่ 2:</strong> แปลง ${decimal.toString(10)}<sub>10</sub> เป็นฐาน ${toBase} โดยหารไปเรื่อยๆ`);
+
+    let quotient = decimal;
+    const remainders = [];
+
+    while (quotient > 0n) {
+
+        const rem = quotient % BigInt(toBase);
+        const next = quotient / BigInt(toBase);
+
+        steps.push(
+            `${quotient.toString(10)} ÷ ${toBase} = ${next.toString(10)}  เศษ ${rem.toString(toBase).toUpperCase()}`
+        );
+
+        remainders.push(rem.toString(toBase).toUpperCase());
+        quotient = next;
+    }
+
+    if (remainders.length === 0) {
+        remainders.push("0");
+    }
+
+    const result = remainders.reverse().join("");
+
+    steps.push(`<strong>อ่านเศษจากล่างขึ้นบน ได้ผลลัพธ์:</strong> ${result}<sub>${toBase}</sub>`);
+
+    document.getElementById("stepsResult").innerHTML =
+        `ผลลัพธ์: <span>${result}</span><br><br>` + steps.join("<br>");
+
+    addHistory(
+        `${normalized} (ฐาน ${fromBase}) → ${result} (ฐาน ${toBase}) — พร้อมขั้นตอน`
     );
 }
 
