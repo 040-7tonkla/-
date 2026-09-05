@@ -672,6 +672,7 @@ function showSteps() {
 
         const digits = normalized.split("");
         const len = digits.length;
+        const baseN = BigInt(fromBase);
 
         const terms = digits.map((d, i) =>
             `${d} × ${fromBase}<sup>${len - 1 - i}</sup>`
@@ -680,7 +681,7 @@ function showSteps() {
         const values = digits.map((d, i) => {
             const pos = len - 1 - i;
             const digitVal = BigInt(parseInt(d, fromBase));
-            return (digitVal * fromBase ** BigInt(pos)).toString(10);
+            return (digitVal * baseN ** BigInt(pos)).toString(10);
         });
 
         steps.push(`<strong>ขั้นที่ 1:</strong> แปลง ${normalized}<sub>${fromBase}</sub> เป็นฐาน 10`);
@@ -819,6 +820,7 @@ function calculate() {
     }
 
     let result;
+    let remainderNote = "";
 
     switch (operator) {
 
@@ -834,9 +836,19 @@ function calculate() {
             result = a * b;
             break;
 
-        case "/":
+        case "/": {
+
             result = a / b;
+
+            const r = a % b;
+
+            if (r !== 0n) {
+                remainderNote =
+                    ` เศษ ${r.toString(base).toUpperCase()}`;
+            }
+
             break;
+        }
     }
 
     const output = result
@@ -844,10 +856,10 @@ function calculate() {
         .toUpperCase();
 
     document.getElementById("calcResult").innerHTML =
-        `ผลลัพธ์: <span>${output}</span>`;
+        `ผลลัพธ์: <span>${output}</span>` + remainderNote;
 
     addHistory(
-        `${num1} ${operator} ${num2} = ${output} (ฐาน ${base})`
+        `${num1} ${operator} ${num2} = ${output}${remainderNote} (ฐาน ${base})`
     );
 }
 
