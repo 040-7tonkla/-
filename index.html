@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Binary Number Tool</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background: #0f172a;
+    color: #e2e8f0;
+    min-height: 100vh;
+    padding: 30px 15px;
+}
+
+.container {
+    max-width: 900px;
+    margin: auto;
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.header h1 {
+    font-size: 34px;
+    color: #38bdf8;
+}
+
+.header p {
+    margin-top: 8px;
+    color: #94a3b8;
+}
+
+.card {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 16px;
+    padding: 25px;
+    margin-bottom: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.25);
+}
+
+.card h2 {
+    margin-bottom: 20px;
+    color: #f8fafc;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    color: #cbd5e1;
+}
+
+input, select {
+    width: 100%;
+    padding: 13px;
+    border-radius: 10px;
+    border: 1px solid #475569;
+    background: #0f172a;
+    color: white;
+    font-size: 16px;
+    outline: none;
+}
+
+input:focus, select:focus {
+    border-color: #38bdf8;
+}
+
+button {
+    border: none;
+    border-radius: 10px;
+    padding: 13px 18px;
+    margin-top: 18px;
+    cursor: pointer;
+    background: #0284c7;
+    color: white;
+    font-size: 16px;
+    transition: .2s;
+}
+
+button:hover {
+    background: #0369a1;
+    transform: translateY(-1px);
+}
+
+.result {
+    margin-top: 20px;
+    padding: 18px;
+    background: #0f172a;
+    border-radius: 10px;
+    border: 1px solid #334155;
+    min-height: 60px;
+    word-break: break-all;
+}
+
+.result span {
+    color: #38bdf8;
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.history {
+    margin-top: 15px;
+}
+
+.history-item {
+    background: #0f172a;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    color: #cbd5e1;
+}
+
+.all-bases {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.base-box {
+    background: #0f172a;
+    padding: 15px;
+    border-radius: 10px;
+    text-align: center;
+}
+
+.base-box small {
+    color: #94a3b8;
+}
+
+.base-box strong {
+    display: block;
+    margin-top: 8px;
+    color: #38bdf8;
+    word-break: break-all;
+}
+
+.clear {
+    background: #dc2626;
+}
+
+.clear:hover {
+    background: #b91c1c;
+}
+
+@media (max-width: 600px) {
+    .grid {
+        grid-template-columns: 1fr;
+    }
+
+    .all-bases {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="header">
+        <h1>🔢 ระบบเลขฐาน</h1>
+        <p>Binary • Octal • Decimal • Hexadecimal</p>
+    </div>
+
+    <!-- แปลงเลขฐาน -->
+    <div class="card">
+
+        <h2>🔄 แปลงระบบเลข</h2>
+
+        <div class="grid">
+
+            <div>
+                <label>จากระบบเลข</label>
+
+                <select id="fromBase">
+                    <option value="2">ฐาน 2 (Binary)</option>
+                    <option value="8">ฐาน 8 (Octal)</option>
+                    <option value="10" selected>ฐาน 10 (Decimal)</option>
+                    <option value="16">ฐาน 16 (Hexadecimal)</option>
+                </select>
+            </div>
+
+            <div>
+                <label>เป็นระบบเลข</label>
+
+                <select id="toBase">
+                    <option value="2" selected>ฐาน 2 (Binary)</option>
+                    <option value="8">ฐาน 8 (Octal)</option>
+                    <option value="10">ฐาน 10 (Decimal)</option>
+                    <option value="16">ฐาน 16 (Hexadecimal)</option>
+                </select>
+            </div>
+
+        </div>
+
+        <label style="margin-top:20px;">🔢 ป้อนตัวเลข</label>
+
+        <input
+            type="text"
+            id="numberInput"
+            placeholder="เช่น 25"
+        >
+
+        <button onclick="convertNumber()">
+            ⚡ แปลงค่า
+        </button>
+
+        <div class="result" id="result">
+            ผลลัพธ์จะแสดงที่นี่
+        </div>
+
+    </div>
+
+
+    <!-- แสดงทุกฐาน -->
+
+    <div class="card">
+
+        <h2>📊 แสดงค่าในทุกฐาน</h2>
+
+        <button onclick="showAllBases()">
+            📊 แปลงทุกฐาน
+        </button>
+
+        <div class="all-bases" id="allBases"></div>
+
+    </div>
+
+
+    <!-- Calculator -->
+
+    <div class="card">
+
+        <h2>🧮 คำนวณเลขฐาน</h2>
+
+        <div class="grid">
+
+            <div>
+                <label>ตัวเลขที่ 1</label>
+                <input id="num1" placeholder="เช่น 1010">
+            </div>
+
+            <div>
+                <label>ตัวเลขที่ 2</label>
+                <input id="num2" placeholder="เช่น 0011">
+            </div>
+
+        </div>
+
+        <label style="margin-top:20px;">ระบบเลข</label>
+
+        <select id="calcBase">
+            <option value="2">ฐาน 2</option>
+            <option value="8">ฐาน 8</option>
+            <option value="10">ฐาน 10</option>
+            <option value="16">ฐาน 16</option>
+        </select>
+
+        <label style="margin-top:20px;">ตัวดำเนินการ</label>
+
+        <select id="operator">
+            <option value="+">บวก (+)</option>
+            <option value="-">ลบ (-)</option>
+            <option value="*">คูณ (×)</option>
+            <option value="/">หาร (÷)</option>
+        </select>
+
+        <button onclick="calculate()">
+            🧮 คำนวณ
+        </button>
+
+        <div class="result" id="calcResult">
+            ผลลัพธ์จะแสดงที่นี่
+        </div>
+
+    </div>
+
+
+    <!-- Bitwise -->
+
+    <div class="card">
+
+        <h2>⚙️ Bitwise</h2>
+
+        <div class="grid">
+
+            <div>
+                <label>ตัวเลขที่ 1</label>
+                <input id="bit1" placeholder="เช่น 1010">
+            </div>
+
+            <div>
+                <label>ตัวเลขที่ 2</label>
+                <input id="bit2" placeholder="เช่น 0011">
+            </div>
+
+        </div>
+
+        <select id="bitOperator" style="margin-top:20px;">
+            <option value="AND">AND (&)</option>
+            <option value="OR">OR (|)</option>
+            <option value="XOR">XOR (^)</option>
+        </select>
+
+        <button onclick="bitwise()">
+            ⚡ คำนวณ Bitwise
+        </button>
+
+        <div class="result" id="bitResult">
+            ผลลัพธ์จะแสดงที่นี่
+        </div>
+
+    </div>
+
+
+    <!-- History -->
+
+    <div class="card">
+
+        <h2>📜 ประวัติการใช้งาน</h2>
+
+        <div id="history">
+            ยังไม่มีประวัติ
+        </div>
+
+        <button class="clear" onclick="clearHistory()">
+            🗑️ ล้างประวัติ
+        </button>
+
+    </div>
+
+</div>
+
+
+<script>
+
+let historyData = [];
+
+
+/* =========================
+   ฟังก์ชันช่วยตรวจสอบเลข
+========================= */
+
+function normalize(input, base) {
+    let s = input.trim().toUpperCase();
+    const p = {2: "0B", 8: "0O", 16: "0X"}[base];
+    if (p && s.startsWith(p)) s = s.slice(2);
+    return s;
+}
+
+function isValidNumber(str, base) {
+    const digits = "0123456789ABCDEF";
+    return str.split("").every(ch => {
+        const i = digits.indexOf(ch);
+        return i !== -1 && i < base;
+    });
+}
+
+function toBigInt(normalized, base) {
+    const marks = {2: "0b", 8: "0o", 16: "0x"};
+    return BigInt((marks[base] || "") + normalized);
+}
+
+
+/* =========================
+   แปลงเลขฐาน
+========================= */
+
+function convertNumber() {
+
+    const input = document.getElementById("numberInput").value;
+
+    const fromBase = parseInt(
+        document.getElementById("fromBase").value
+    );
+
+    const toBase = parseInt(
+        document.getElementById("toBase").value
+    );
+
+    const normalized = normalize(input, fromBase);
+
+    if (!normalized) {
+        alert("กรุณาป้อนตัวเลข");
+        return;
+    }
+
+    if (!isValidNumber(normalized, fromBase)) {
+        document.getElementById("result").innerHTML =
+            `❌ ไม่ใช่ตัวเลขฐาน ${fromBase}`;
+        return;
+    }
+
+    const decimal = toBigInt(normalized, fromBase);
+
+    const result = decimal.toString(toBase).toUpperCase();
+
+    document.getElementById("result").innerHTML =
+        `ผลลัพธ์: <span>${result}</span>`;
+
+    addHistory(
+        `${input.trim()} (ฐาน ${fromBase}) → ${result} (ฐาน ${toBase})`
+    );
+}
+
+
+/* =========================
+   แสดงทุกฐาน
+========================= */
+
+function showAllBases() {
+
+    const input = document.getElementById("numberInput").value;
+
+    const fromBase = parseInt(
+        document.getElementById("fromBase").value
+    );
+
+    const normalized = normalize(input, fromBase);
+
+    if (!normalized) {
+        alert("กรุณาป้อนตัวเลขก่อน");
+        return;
+    }
+
+    if (!isValidNumber(normalized, fromBase)) {
+        alert(`ไม่ใช่ตัวเลขฐาน ${fromBase}`);
+        return;
+    }
+
+    const decimal = toBigInt(normalized, fromBase);
+
+    document.getElementById("allBases").innerHTML = `
+
+        <div class="base-box">
+            <small>ฐาน 2</small>
+            <strong>${decimal.toString(2)}</strong>
+        </div>
+
+        <div class="base-box">
+            <small>ฐาน 8</small>
+            <strong>${decimal.toString(8)}</strong>
+        </div>
+
+        <div class="base-box">
+            <small>ฐาน 10</small>
+            <strong>${decimal.toString(10)}</strong>
+        </div>
+
+        <div class="base-box">
+            <small>ฐาน 16</small>
+            <strong>${decimal.toString(16).toUpperCase()}</strong>
+        </div>
+
+    `;
+}
+
+
+/* =========================
+   Calculator
+========================= */
+
+function calculate() {
+
+    const base = parseInt(
+        document.getElementById("calcBase").value
+    );
+
+    const num1 = normalize(document.getElementById("num1").value, base);
+    const num2 = normalize(document.getElementById("num2").value, base);
+
+    const operator =
+        document.getElementById("operator").value;
+
+    if (!num1 || !num2) {
+        document.getElementById("calcResult").innerHTML =
+            "❌ กรุณากรอกตัวเลขทั้งสองตัว";
+        return;
+    }
+
+    if (!isValidNumber(num1, base) || !isValidNumber(num2, base)) {
+        document.getElementById("calcResult").innerHTML =
+            `❌ ไม่ใช่ตัวเลขฐาน ${base}`;
+        return;
+    }
+
+    const a = toBigInt(num1, base);
+    const b = toBigInt(num2, base);
+
+    if (operator === "/" && b === 0n) {
+        document.getElementById("calcResult").innerHTML =
+            "❌ ไม่สามารถหารด้วย 0";
+        return;
+    }
+
+    let result;
+
+    switch (operator) {
+
+        case "+":
+            result = a + b;
+            break;
+
+        case "-":
+            result = a - b;
+            break;
+
+        case "*":
+            result = a * b;
+            break;
+
+        case "/":
+            result = a / b;
+            break;
+    }
+
+    const output = result
+        .toString(base)
+        .toUpperCase();
+
+    document.getElementById("calcResult").innerHTML =
+        `ผลลัพธ์: <span>${output}</span>`;
+
+    addHistory(
+        `${num1} ${operator} ${num2} = ${output} (ฐาน ${base})`
+    );
+}
+
+
+/* =========================
+   Bitwise
+========================= */
+
+function bitwise() {
+
+    const input1 =
+        normalize(document.getElementById("bit1").value, 2);
+
+    const input2 =
+        normalize(document.getElementById("bit2").value, 2);
+
+    const operator =
+        document.getElementById("bitOperator").value;
+
+    if (!input1 || !input2) {
+        alert("กรุณาใส่เลขฐาน 2 ทั้งสองตัว");
+        return;
+    }
+
+    if (!isValidNumber(input1, 2) || !isValidNumber(input2, 2)) {
+        alert("กรุณาใส่เฉพาะเลข 0 และ 1 (ฐาน 2)");
+        return;
+    }
+
+    const a = toBigInt(input1, 2);
+    const b = toBigInt(input2, 2);
+
+    let result;
+
+    if (operator === "AND") {
+        result = a & b;
+    }
+
+    if (operator === "OR") {
+        result = a | b;
+    }
+
+    if (operator === "XOR") {
+        result = a ^ b;
+    }
+
+    const binaryResult =
+        result.toString(2);
+
+    document.getElementById("bitResult").innerHTML =
+        `ผลลัพธ์: <span>${binaryResult}</span>`;
+
+    addHistory(
+        `${input1} ${operator} ${input2} = ${binaryResult}`
+    );
+}
+
+
+/* =========================
+   History
+========================= */
+
+function addHistory(text) {
+
+    historyData.unshift(text);
+
+    if (historyData.length > 10) {
+        historyData.pop();
+    }
+
+    renderHistory();
+}
+
+
+function renderHistory() {
+
+    const history =
+        document.getElementById("history");
+
+    if (historyData.length === 0) {
+
+        history.innerHTML =
+            "ยังไม่มีประวัติ";
+
+        return;
+    }
+
+    history.innerHTML =
+        historyData.map(item => `
+            <div class="history-item">
+                ${item}
+            </div>
+        `).join("");
+}
+
+
+function clearHistory() {
+
+    historyData = [];
+
+    renderHistory();
+}
+
+</script>
+
+</body>
+</html>
