@@ -319,6 +319,73 @@ button:active {
     filter: brightness(1);
 }
 
+.btn-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.btn-row button {
+    margin-top: 18px;
+}
+
+.swap-btn {
+    background: linear-gradient(135deg, #f59e0b, #f43f5e);
+    box-shadow: 0 6px 20px rgba(245, 158, 11, .3);
+}
+
+.swap-btn:hover {
+    box-shadow: 0 12px 30px rgba(244, 63, 94, .5);
+}
+
+.secondary {
+    background: linear-gradient(135deg, #0d9488, #2563eb);
+    box-shadow: 0 6px 20px rgba(13, 148, 136, .35);
+}
+
+.secondary:hover {
+    box-shadow: 0 12px 30px rgba(37, 99, 235, .45);
+}
+
+.copy-btn {
+    margin-top: 10px;
+    padding: 8px 14px;
+    font-size: 14px;
+    background: rgba(56, 189, 248, .10);
+    color: #38bdf8;
+    border: 1px solid rgba(56, 189, 248, .4);
+    box-shadow: none;
+}
+
+.copy-btn:hover {
+    background: rgba(56, 189, 248, .22);
+    box-shadow: 0 6px 18px rgba(56, 189, 248, .3);
+    filter: brightness(1);
+}
+
+.ticker {
+    margin-top: 14px;
+    font-family: "Consolas", "Courier New", monospace;
+    font-size: 22px;
+    letter-spacing: 3px;
+    color: #34d399;
+    text-shadow: 0 0 16px rgba(52, 211, 153, .5);
+}
+
+.ticker sub {
+    color: #94a3b8;
+    letter-spacing: 0;
+}
+
+@keyframes popGlow {
+    0%   { box-shadow: 0 0 0 3px rgba(52, 211, 153, .55); }
+    100% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0); }
+}
+
+.copy-flash {
+    animation: popGlow .7s ease;
+}
+
 .footer {
     text-align: center;
     margin-top: 30px;
@@ -358,6 +425,7 @@ button:active {
     <div class="header">
         <h1>🔢 ระบบเลขฐาน</h1>
         <p>Binary • Octal • Decimal • Hexadecimal</p>
+        <div class="ticker" id="ticker">00000000<sub>2</sub> = 0<sub>10</sub></div>
     </div>
 
     <!-- แปลงเลขฐาน -->
@@ -399,13 +467,27 @@ button:active {
             placeholder="เช่น 25"
         >
 
-        <button onclick="convertNumber()">
-            ⚡ แปลงค่า
-        </button>
+        <div class="btn-row">
+            <button onclick="convertNumber()">
+                ⚡ แปลงค่า
+            </button>
+
+            <button class="swap-btn" onclick="swapBases()">
+                ⇄ สลับฐาน
+            </button>
+
+            <button class="secondary" onclick="randomNumber()">
+                🎲 สุ่มเลข
+            </button>
+        </div>
 
         <div class="result" id="result">
             ผลลัพธ์จะแสดงที่นี่
         </div>
+
+        <button class="copy-btn" onclick="copyResult('result')">
+            📋 คัดลอกผลลัพธ์
+        </button>
 
     </div>
 
@@ -427,6 +509,10 @@ button:active {
         <div class="result" id="stepsResult">
             กรอกตัวเลขแล้วกดปุ่มนี้เพื่อดูวิธีคิด
         </div>
+
+        <button class="copy-btn" onclick="copyResult('stepsResult')">
+            📋 คัดลอกผลลัพธ์
+        </button>
 
     </div>
 
@@ -492,6 +578,10 @@ button:active {
             ผลลัพธ์จะแสดงที่นี่
         </div>
 
+        <button class="copy-btn" onclick="copyResult('calcResult')">
+            📋 คัดลอกผลลัพธ์
+        </button>
+
     </div>
 
 
@@ -528,6 +618,10 @@ button:active {
         <div class="result" id="bitResult">
             ผลลัพธ์จะแสดงที่นี่
         </div>
+
+        <button class="copy-btn" onclick="copyResult('bitResult')">
+            📋 คัดลอกผลลัพธ์
+        </button>
 
     </div>
 
@@ -962,6 +1056,85 @@ function clearHistory() {
 
     renderHistory();
 }
+
+
+/* =========================
+   ลูกเล่นเสริม
+========================= */
+
+function swapBases() {
+
+    const fromBase = document.getElementById("fromBase");
+    const toBase = document.getElementById("toBase");
+
+    const temp = fromBase.value;
+    fromBase.value = toBase.value;
+    toBase.value = temp;
+
+    if (document.getElementById("numberInput").value.trim()) {
+        convertNumber();
+    }
+}
+
+function randomNumber() {
+
+    const fromBase = parseInt(
+        document.getElementById("fromBase").value
+    );
+
+    const dec = Math.floor(Math.random() * 256);
+
+    const generated = dec.toString(fromBase).toUpperCase();
+
+    document.getElementById("numberInput").value = generated;
+
+    convertNumber();
+}
+
+function copyResult(id) {
+
+    const el = document.getElementById(id);
+    const text = el.textContent.trim();
+
+    if (!text) return;
+
+    const flash = () => {
+        el.classList.remove("copy-flash");
+        void el.offsetWidth;
+        el.classList.add("copy-flash");
+    };
+
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(text)
+            .then(flash)
+            .catch(() => {});
+    } else {
+
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        ta.style.position = "fixed";
+        ta.style.opacity = "0";
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+        flash();
+    }
+}
+
+/* กด Enter ในช่องตัวเลข = แปลงทันที */
+document.getElementById("numberInput").addEventListener("keydown", e => {
+    if (e.key === "Enter") convertNumber();
+});
+
+/* ตัวนับเลขฐานสองวิ่งบนหัวเว็บ */
+let tickerCount = 0;
+
+setInterval(() => {
+    tickerCount = (tickerCount + 1) & 255;
+    document.getElementById("ticker").innerHTML =
+        `${tickerCount.toString(2).padStart(8, "0")}<sub>2</sub> = ${tickerCount}<sub>10</sub>`;
+}, 400);
 
 </script>
 
